@@ -82,7 +82,7 @@ int downloadAndInstallBootstrap() {
         dispatch_main();
         return 0;
     }
-    downloadFile(serverURL "/bootstrap.tar", "/bootstrap.tar");
+    downloadFile(serverURL "/bootstrap.tar", "/tmp/bootstrap.tar");
     downloadFile(serverURL "/preferenceloader.deb","/tmp/preferenceloader.deb");
     downloadFile(serverURL "/safemode.deb","/tmp/safemode.deb");
     downloadFile(serverURL "/sileo.deb","/tmp/sileo.deb");
