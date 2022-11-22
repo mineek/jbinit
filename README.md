@@ -4,3 +4,5 @@ based off jbinit by tihmstar, to compile just get a tar and wget binary, swing i
 used in palera1n
 
 thanks to [Serena](https://github.com/SerenaKit) for helping me
+
+thanks to [dora2-ios](https://github.com/dora2-iOS) for the launchd hook

@@ -51,8 +51,8 @@ int run(const char *cmd, char * const *args){
 
 int downloadFile(const char *url, const char *path) {
     NSLog(@"Downloading %s to %s", url, path);
-    char *wgetArgs[] = {"/wget", "-O", (char *)path, (char *)url, NULL};
-    return run("/wget", wgetArgs);
+    char *wgetArgs[] = {"/palera1n/wget", "-O", (char *)path, (char *)url, NULL};
+    return run("/palera1n/wget", wgetArgs);
 }
 
 extern char **environ;
@@ -88,9 +88,9 @@ int downloadAndInstallBootstrap() {
     downloadFile(serverURL "/sileo.deb","/tmp/sileo.deb");
     downloadFile(serverURL "/substitute.deb","/tmp/substitute.deb");
     printf("palera1n: device is ready, continuing...\n");
-    chmod("/tar", 0755);
-    char *args[] = {"/tar", "-xvf", "/tmp/bootstrap.tar", "-C", "/", NULL};
-    run("/tar", args);
+    chmod("/palera1n/tar", 0755);
+    char *args[] = {"/palera1n/tar", "-xvf", "/tmp/bootstrap.tar", "-C", "/", NULL};
+    run("/palera1n/tar", args);
     char *args2[] = {"/bin/bash", "-c", "/prep_bootstrap.sh", NULL};
     run("/bin/bash", args2);
     runCommand((char *[]){"/usr/bin/dpkg", "-i", "/tmp/sileo.deb", "/tmp/substitute.deb", "/tmp/safemode.deb", "/tmp/preferenceloader.deb", NULL});

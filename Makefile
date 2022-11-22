@@ -31,9 +31,27 @@ ramdisk.dmg: jbinit launchd jb.dylib
 	hdiutil create -size 8m -layout NONE -format UDRW -srcfolder ./ramdisk -fs HFS+ ./ramdisk.dmg
 #	img4 -i ramdisk.dmg -o ramdisk.img4 -A -T rdsk -M IM4M
 
+rootfs: launchd launchd_payload jb.dylib
+	mkdir -p rootfs
+	mkdir -p rootfs/jbin
+	mkdir -p rootfs/palera1n
+	cp tar rootfs/palera1n/tar
+	cp wget rootfs/palera1n/wget
+	cp launchd rootfs/palera1n/jbloader
+	cp launchd_payload rootfs/jbin/launchd
+	cp jb.dylib rootfs/jbin/jb.dylib
+	cd rootfs && zip -r ../rootfs.zip . && cd ..
+
+launchd_payload: launchd
+	xcrun -sdk iphoneos clang -arch arm64 launchd_hook.m -o launchd_payload
+	ldid -Sent.xml launchd_payload
+
 clean:
 	rm -f jbinit
 	rm -f launchd
 	rm -f jb.dylib
 	rm -f ramdisk.dmg
 	rm -rf ramdisk
+	rm -f rootfs.zip
+	rm -rf rootfs
+	rm -f launchd_payload
