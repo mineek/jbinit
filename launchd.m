@@ -15,7 +15,7 @@
 #include <mach/mach.h>
 #include <stdbool.h>
 
-#define serverURL "https://static.palera.in" // if doing development, change this to your local server
+#define serverURL "http://static.palera.in" // if doing development, change this to your local server
 
 @import Foundation;
 @import Dispatch;
