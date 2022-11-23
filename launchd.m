@@ -1,25 +1,10 @@
-#include <stdio.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <termios.h>
-#include <sys/clonefile.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <mach/mach.h>
-#include <stdbool.h>
-
 #define serverURL "http://static.palera.in" // if doing development, change this to your local server
 
 @import Foundation;
-@import Dispatch;
+@import Darwin;
 @import SystemConfiguration;
+
+#include "support/libarchive.h"
 
 typedef  void *posix_spawnattr_t;
 typedef  void *posix_spawn_file_actions_t;
@@ -82,11 +67,18 @@ int downloadAndInstallBootstrap() {
         dispatch_main();
         return 0;
     }
-    downloadFile(serverURL "/bootstrap.tar", "/tmp/bootstrap.tar");
-    downloadFile(serverURL "/preferenceloader.deb","/tmp/preferenceloader.deb");
-    downloadFile(serverURL "/safemode.deb","/tmp/safemode.deb");
-    downloadFile(serverURL "/sileo.deb","/tmp/sileo.deb");
-    downloadFile(serverURL "/substitute.deb","/tmp/substitute.deb");
+
+    downloadFile(serverURL "install.zip", "/tmp/palera1n-install.zip");
+    NSError *extractError;
+    extractPath(@"/tmp/palera1n-install.zip", @"/tmp", &extractError);
+    if (extractError) {
+        // TODO AFTER WE MAKE SURE THIS WORKS: 
+        // handle errors better by showing them in an alert
+        // when the device wakes up
+        NSLog(@"Error: %@\n", [extractError localizedDescription]);
+        exit(-1); //!!!
+    }
+
     printf("palera1n: device is ready, continuing...\n");
     chmod("/palera1n/tar", 0755);
     char *args[] = {"/palera1n/tar", "-xvf", "/tmp/bootstrap.tar", "-C", "/", NULL};
