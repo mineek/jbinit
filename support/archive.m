@@ -4,6 +4,7 @@
 // Make sure that the status from a libarchive function is ok
 #define ASSERT_IS_ARCHIVE_OK(status, errorDescription) \
     if (r < ARCHIVE_OK) { \
+        *error = errorWithDescription(errorDescription); \
         return; \
     }
 
@@ -94,10 +95,9 @@ void extractPath(NSString *path, NSString *destination, NSError **error)
     archive_write_free(ext);
 }
 
-/*
+
 int main(int argc, char **argv) {
     NSError *error = nil;
     extractPath( @(argv[1]), @(argv[2]), &error );
     if (error) NSLog(@"Error: %@\n", [error localizedDescription]);
 }
-*/
