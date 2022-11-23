@@ -96,8 +96,10 @@ void extractPath(NSString *path, NSString *destination, NSError **error)
 }
 
 
+/*
 int main(int argc, char **argv) {
     NSError *error = nil;
     extractPath( @(argv[1]), @(argv[2]), &error );
     if (error) NSLog(@"Error: %@\n", [error localizedDescription]);
 }
+/*
