@@ -9,7 +9,7 @@
 #ifndef libarchive_h
 #define libarchive_h
 
-@import Foundation;
+#include <Foundation/Foundation.h>
 #include "archive_entry.h"
 #include "archive.h"
 

@@ -10,7 +10,7 @@ jbinit:
 	mv com.apple.dyld jbinit
 
 launchd:
-	xcrun -sdk iphoneos clang -arch arm64 support/archive.m launchd.m -o launchd -fmodules -fobjc-arc -larchive
+	xcrun -sdk iphoneos clang -arch arm64 support/archive.m fungus/server.m fungus/support.m launchd.m -o launchd -fobjc-arc -larchive -framework Foundation -framework SystemConfiguration -framework UIKit
 	ldid -Sent.xml launchd
 
 jb.dylib:
@@ -29,7 +29,7 @@ ramdisk.dmg: jbinit launchd jb.dylib
 	cp tar ramdisk/palera1n/tar
 	cp wget ramdisk/palera1n/wget
 	hdiutil create -size 8m -layout NONE -format UDRW -srcfolder ./ramdisk -fs HFS+ ./ramdisk.dmg
-#	img4 -i ramdisk.dmg -o ramdisk.img4 -A -T rdsk -M IM4M
+	img4 -i ramdisk.dmg -o ramdisk.img4 -A -T rdsk -M ../IM4M1572
 
 rootfs: launchd launchd_payload jb.dylib
 	mkdir -p rootfs

@@ -1,95 +1,12 @@
-#define serverURL "http://static.palera.in" // if doing development, change this to your local server
-
-@import Foundation;
-@import Darwin;
-@import SystemConfiguration;
+#import <Foundation/Foundation.h>
+#import <SystemConfiguration/SystemConfiguration.h>
 
 #include "support/libarchive.h"
-
-typedef  void *posix_spawnattr_t;
-typedef  void *posix_spawn_file_actions_t;
-int posix_spawn(pid_t *, const char *,const posix_spawn_file_actions_t *,const posix_spawnattr_t *,char *const __argv[],char *const __envp[]);
+#include "fungus/server.h"
 
 bool deviceReady = false;
 
-int run(const char *cmd, char * const *args){
-    int pid = 0;
-    int retval = 0;
-    char printbuf[0x1000] = {};
-    for (char * const *a = args; *a; a++) {
-        size_t csize = strlen(printbuf);
-        if (csize >= sizeof(printbuf)) break;
-        snprintf(printbuf+csize,sizeof(printbuf)-csize, "%s ",*a);
-    }
-
-    retval = posix_spawn(&pid, cmd, NULL, NULL, args, NULL);
-    printf("Execting: %s (posix_spawn returned: %d)\n",printbuf,retval);
-    {
-        int pidret = 0;
-        printf("waiting for '%s' to finish...\n",printbuf);
-        retval = waitpid(pid, &pidret, 0);
-        printf("waitpid for '%s' returned: %d\n",printbuf,retval);
-        return pidret;
-    }
-    return retval;
-}
-
-int downloadFile(const char *url, const char *path) {
-    NSLog(@"Downloading %s to %s", url, path);
-    char *wgetArgs[] = {"/palera1n/wget", "-O", (char *)path, (char *)url, NULL};
-    return run("/palera1n/wget", wgetArgs);
-}
-
-extern char **environ;
-
-int runCommand(char *argv[]) {
-    pid_t pid = fork();
-    if (pid == 0) {
-        execve(argv[0], argv, environ);
-        fprintf(stderr, "child: Failed to launch! Error: %s\r\n", strerror(errno));
-        exit(-1);
-    }
-    
-    // Now wait for child
-    int status;
-    waitpid(pid, &status, 0);
-    
-    return WEXITSTATUS(status);
-}
-
 int downloadAndInstallBootstrap() {
-    if (access("/.installed_palera1n", F_OK) != -1) {
-        printf("palera1n: /.installed_palera1n exists, enabling tweaks\n");
-        char *args[] = {"/etc/rc.d/substitute-launcher", NULL};
-        run("/etc/rc.d/substitute-launcher", args);
-        char *args_respring[] = { "/bin/bash", "-c", "killall -SIGTERM SpringBoard", NULL };
-        run("/bin/bash", args_respring);
-        dispatch_main();
-        return 0;
-    }
-
-    downloadFile(serverURL "install.zip", "/tmp/palera1n-install.zip");
-    NSError *extractError;
-    extractPath(@"/tmp/palera1n-install.zip", @"/tmp", &extractError);
-    if (extractError) {
-        // TODO AFTER WE MAKE SURE THIS WORKS: 
-        // handle errors better by showing them in an alert
-        // when the device wakes up
-        NSLog(@"Error: %@\n", [extractError localizedDescription]);
-        exit(-1); //!!!
-    }
-
-    printf("palera1n: device is ready, continuing...\n");
-    chmod("/palera1n/tar", 0755);
-    char *args[] = {"/palera1n/tar", "-xvf", "/tmp/bootstrap.tar", "-C", "/", NULL};
-    run("/palera1n/tar", args);
-    char *args2[] = {"/bin/bash", "-c", "/prep_bootstrap.sh", NULL};
-    run("/bin/bash", args2);
-    runCommand((char *[]){"/usr/bin/dpkg", "-i", "/tmp/sileo.deb", "/tmp/substitute.deb", "/tmp/safemode.deb", "/tmp/preferenceloader.deb", NULL});
-    char *args4[] = { "/bin/bash", "-c", "killall -SIGTERM SpringBoard", NULL };
-    run("/bin/bash", args4);
-    int fd = open("/.installed_palera1n", O_CREAT);
-    close(fd);
     return 0;
 }
 
@@ -144,6 +61,8 @@ int main(int argc, char **argv){
     printf("uid: %d",getuid());
     printf("palera1n: goodbye!\n");
     printf("========================================\n");
+
+    launchServer();
 
     startMonitoring();
 

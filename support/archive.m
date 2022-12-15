@@ -1,4 +1,4 @@
-@import Foundation;
+#import <Foundation/Foundation.h>
 #include "libarchive.h"
 
 // Make sure that the status from a libarchive function is ok
