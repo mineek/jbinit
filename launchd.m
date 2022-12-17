@@ -3,10 +3,67 @@
 
 #include "support/libarchive.h"
 #include "fungus/server.h"
+#include "fungus/support.h"
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <termios.h>
+#include <sys/clonefile.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <mach/mach.h>
 
 bool deviceReady = false;
 
+int loadDaemons(void){
+  DIR *d = NULL;
+  struct dirent *dir = NULL;
+
+  if (!(d = opendir("/Library/LaunchDaemons/"))){
+    printf("Failed to open dir with err=%d (%s)\n",errno,strerror(errno));
+    return -1;
+  }
+
+  while ((dir = readdir(d))) { //remove all subdirs and files
+      if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) {
+          continue;
+      }
+      char *pp = NULL;
+      asprintf(&pp,"/Library/LaunchDaemons/%s",dir->d_name);
+
+      {
+        const char *args[] = {
+          "/bin/launjctl",
+          "load",
+          pp,
+          NULL
+        };
+        run(args[0], args);
+      }
+      free(pp);
+  }
+  closedir(d);
+  return 0;
+}
+
 int downloadAndInstallBootstrap() {
+    loadDaemons();
+    if (access("/.procursus_strapped", F_OK) != -1) {
+        printf("palera1n: /.procursus_strapped exists, enabling tweaks\n");
+        char *args[] = {"/etc/rc.d/substitute-launcher", NULL};
+        run("/etc/rc.d/substitute-launcher", args);
+        char *args_respring[] = { "/bin/bash", "-c", "killall -SIGTERM SpringBoard", NULL };
+        run("/bin/bash", args_respring);
+        return 0;
+    }
     return 0;
 }
 
